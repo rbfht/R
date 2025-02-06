@@ -63,29 +63,30 @@ hist(homedata$y2000,
 #is desines,skaidymo taskais imdami 0,40,80,100. 
 #Padarykite palyginamasias staciakampes intervalines temperaturos diagramas, pagal 
 #skirtingu metu kategorijas. 
+#Sltn nr.1
 library(UsingR)
 df <- five.yr.temperature
 int.galai <- c(0,40,80,100)
 library(dplyr)
 library(tidyr)
-df_long <- df |>
+df_new <- df |>
   mutate(intervalai = cut(temps, int.galai, right = FALSE))|>
   count(years, intervalai)|>
   group_by(years) |>
   mutate(Procentai = round((n/sum(n))*100, 2)) |>#Nereikia apib n, nes count priskiria by default
-  dplyr::select(-n) |>#drop col. pavad. n, pridedame dplyr, nes yra tokia funkcija mass bibliotekoje 
-  pivot_wider(names_from = years, values_from = Procentai) |>#Padarome, kad metai butu stulpeliai, matricos elementai procentai
-  pivot_longer(cols = -intervalai, names_to = "years", values_to = "Procentai")#Paverciame lentele taip, kad kiekvienas uzfiksavimas butu nauja eilute(long format)
+  dplyr::select(-n)
   #install.packages("ggplot2")
 library(ggplot2)
-df_long |> 
+df_new$years <- factor(df_new$years)#Pakeiciam years stulpeli i kategorijas, o ne skaicius, kad veiktu fill funkcija ggplot, nes ji kitaip laiko kaip tolydu kintamaji
+df_new |> 
   ggplot(mapping = aes(x = intervalai, #pasako kiek grupiu bus siuo atveju
                        y = Procentai,#aukstis
-                       fill = years)) +#fill pasako spalvas, t.y. kiek elementu bus kiekvienoj grupej
+                       fill = years))+#fill pasako spalvas, t.y. kiek elementu bus kiekvienoj grupej
   geom_bar(stat = "identity", position = "dodge")+#stat naudojame, kad imtu the ne el.skc kiekviename intervale, o turimas vertes, position, kad butu vienas salia kito, o ne ant virsaus
   scale_fill_manual(values = c("green", "blue", "red", "purple", "orange", "yellow", "black")) +
   labs(x = "Intervalai", y = "%", fill = "Metai") +
   theme_minimal()
+#Sltn nr.2
 #df_new <- mutate(df, intervalai = cut(df$temps, int.galai, right = FALSE))
 #perc95 <- round(proportions(table(filter(df_new, years == 1995)$intervalai))*100)
 #perc96 <- round(proportions(table(filter(df_new, years == 1996)$intervalai))*100)
@@ -104,13 +105,33 @@ df_long |>
 df_longer <- pivot_longer(df, cols = c(perc95,perc96,perc97,perc98,perc99,perc00), names_to = "Year", values_to = "%")
 ?pivot_longer()
 5.
-Duomenyse five.yr.temperature imdami stulpel� years, juos suskaidykite � dvi
-kategorijas: imtinai 1995-1998 ir imtinai 1998-2001
-Temperat�ros duomenis padalykite � intervalus:u�darus i� kair�s ir atvirus
-i� de�in�s,skaidymo ta�kais imdami 0,40,80,100. (kaip ir 4-oje u�d.)
-Padarykite palyginam�sias sta�iakampes intervalines temperat�ros diagramas, pagal 
-�ias dvi sukurtas  met� kategorijas. 
-
+#Duomenyse five.yr.temperature imdami stulpeli years, juos suskaidykite i dvi
+#kategorijas: imtinai 1995-1998 ir imtinai 1998-2001
+#Temperaturos duomenis padalykite i intervalus:uzdarus is kaires ir atvirus
+#is deeines,skaidymo taskais imdami 0,40,80,100. (kaip ir 4-oje uzd.)
+#Padarykite palyginamasias staciakampes intervalines temperaturos diagramas, pagal 
+#sias dvi sukurtas  metu kategorijas. 
+library(UsingR)
+df <- five.yr.temperature
+int.galai_temp <- c(0,40,80,100)
+int.galai_met <- c(1995,1998,2001)
+library(dplyr)
+library(tidyr)
+df_new <- df |>
+  mutate(temp_int = cut(temps, int.galai_temp, right = F)) |>
+  mutate(met_int = cut(years, int.galai_met, right=F)) |>
+  drop_na(met_int) |>
+  group_by(met_int) |>
+  count(temp_int) |>
+  mutate(procentai = round(100*n/sum(n), 2)) |>
+  dplyr::select(-n)
+df_new |>
+  ggplot(mapping = aes(x=temp_int,
+                       y=procentai,
+                       fill=met_int))+
+  geom_bar(stat = "identity", position = 'dodge')+
+  labs(x="Temp. Intervalai", y="%", fill="Metu Intervalai")+
+  theme_minimal()
 Pakartokite �iuos skai�iavimus imdami met� kategorijas: 
  1995-1998 (imtinai)  ir  1998-2001 (imtinai) 
 
