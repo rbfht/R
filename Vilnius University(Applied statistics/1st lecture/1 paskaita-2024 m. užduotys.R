@@ -1,4 +1,4 @@
-U�duotys.
+#Uzduotys.
 
 #1. 
 #Pakete UsingR suraskite duomenis homedata apie nekilnojamojo turto kainas.
@@ -51,7 +51,7 @@ barplot(c(table_proc_both$Freq.x, table_proc_both$Freq.y),
 #My sltn:
 library(UsingR)
 max(homedata$y2000)
-int.galai <- c(0,100000,300000,400000,500000,max(homedata$y2000))
+int.galai <- seq(min(homedata$y2000), max(homedata$y2000), length.out=6)
 hist(homedata$y2000,
 	breaks = int.galai, 
 	col = "green",
@@ -73,13 +73,12 @@ df_new <- df |>
   mutate(intervalai = cut(temps, int.galai, right = FALSE))|>
   count(years, intervalai)|>
   group_by(years) |>
-  mutate(Procentai = round((n/sum(n))*100, 2)) |>#Nereikia apib n, nes count priskiria by default
-  dplyr::select(-n)
+  mutate(Procentai = round((n/sum(n))*100, 2)) #Nereikia apib n, nes count priskiria by default
   #install.packages("ggplot2")
 library(ggplot2)
 df_new$years <- factor(df_new$years)#Pakeiciam years stulpeli i kategorijas, o ne skaicius, kad veiktu fill funkcija ggplot, nes ji kitaip laiko kaip tolydu kintamaji
 df_new |> 
-  ggplot(mapping = aes(x = intervalai, #pasako kiek grupiu bus siuo atveju
+  ggplot(mapping = aes(x = intervalai, #Grupes
                        y = Procentai,#aukstis
                        fill = years))+#fill pasako spalvas, t.y. kiek elementu bus kiekvienoj grupej
   geom_bar(stat = "identity", position = "dodge")+#stat naudojame, kad imtu the ne el.skc kiekviename intervale, o turimas vertes, position, kad butu vienas salia kito, o ne ant virsaus
@@ -102,8 +101,6 @@ df_new |>
 #	ylim = c(0,100),
 #	xlab = "Temp",
 # ylab = "%")
-df_longer <- pivot_longer(df, cols = c(perc95,perc96,perc97,perc98,perc99,perc00), names_to = "Year", values_to = "%")
-?pivot_longer()
 5.
 #Duomenyse five.yr.temperature imdami stulpeli years, juos suskaidykite i dvi
 #kategorijas: imtinai 1995-1998 ir imtinai 1998-2001
@@ -111,38 +108,81 @@ df_longer <- pivot_longer(df, cols = c(perc95,perc96,perc97,perc98,perc99,perc00
 #is deeines,skaidymo taskais imdami 0,40,80,100. (kaip ir 4-oje uzd.)
 #Padarykite palyginamasias staciakampes intervalines temperaturos diagramas, pagal 
 #sias dvi sukurtas  metu kategorijas. 
+#Pakartokite siuos skaiciavimus imdami metu kategorijas: 
+#  1995-1998 (imtinai)  ir  1998-2001 (imtinai) 
+
+#Padarykite abi diagramas viename lape.
+#?par
+#par(mfrow=c(1,2))
+#My sltn
 library(UsingR)
 df <- five.yr.temperature
 int.galai_temp <- c(0,40,80,100)
 int.galai_met <- c(1995,1998,2001)
 library(dplyr)
 library(tidyr)
-df_new <- df |>
-  mutate(temp_int = cut(temps, int.galai_temp, right = F)) |>
-  mutate(met_int = cut(years, int.galai_met, right=F)) |>
+library(ggplot2)
+#install.packages('gridExtra')
+library(gridExtra)
+#Funkcija keisti intervalus
+df_new <- function(df, breaks_t, breaks_m, right){return(df |>
+  mutate(temp_int = cut(temps, breaks_t, right = right)) |>
+  mutate(met_int = cut(years, breaks_m, right=right)) |>
   drop_na(met_int) |>
   group_by(met_int) |>
   count(temp_int) |>
   mutate(procentai = round(100*n/sum(n), 2)) |>
-  dplyr::select(-n)
-df_new |>
+  dplyr::select(-n))}
+#Funkcija grafikui
+plot <- function(df){return(df |>
   ggplot(mapping = aes(x=temp_int,
                        y=procentai,
                        fill=met_int))+
   geom_bar(stat = "identity", position = 'dodge')+
   labs(x="Temp. Intervalai", y="%", fill="Metu Intervalai")+
+  theme_minimal())}
+#ggplot2 funkcija vietoj par(), kuri veikia tik su bazine R grafika
+grid.arrange(plot(df_new(df, int.galai_temp, int.galai_met, T)), plot(df_new(df, int.galai_temp, int.galai_met, F)), ncol = 2)
+#6.
+#Nubrezite dvi normaliasias kreives su vidurkiu 2  ir standartiniu nuokrypiu
+#0.5 ir 1 atitinkamai. Plota nuo vidurkio iki artimiausiu dvieju
+#siu kreiviu susikirtimo tasku nuspalvinkite geltonai. Susikirtimo taskus galite
+#nustatyti empiriskai.
+#My sltn 1:
+#d1 <- dnorm(seq(0,4, 0.01) , mean =2 , sd=0.5)
+#d2 <- dnorm(seq(0, 4, 0.01), mean =2 , sd=1)
+#library(ggplot2)
+#df <- data.frame(x = seq(0,4,0.01),  y1=d1, y2=d2)
+#intersection <- df %>% 
+#  filter(abs(y1-y2) <= 0.001 )#Neveikia su |>, nes filter yra is dplyr 
+#df |>
+#  ggplot(aes(x=x)) +
+#  stat_function(fun = dnorm, args = list(mean=2, sd=1), color = 'blue') +
+#  stat_function(fun=dnorm, args=list(mean=2, sd=0.5), color = 'red') +
+#  geom_ribbon(
+#    data = df |> filter(x >= min(intersection$x) & x <= max(intersection$x)),
+#    aes(ymin = 0, 
+#        ymax = pmin(y1, y2)),
+ #       fill = 'yellow'
+#  ) +
+#  theme_minimal()
+#Sltn nr.2
+library(ggplot2)
+library(dplyr)
+d1 <- dnorm(seq(0,4, 0.01) , mean =2 , sd=0.5)
+d2 <- dnorm(seq(0, 4, 0.01), mean =2 , sd=1)
+df <- data.frame(x = seq(0,4,0.01),  y1=d1, y2=d2)
+diff <- function(x){return(dnorm(x, mean=2, sd=0.5)-dnorm(x, mean=2, sd=1))}
+root1 <- uniroot(diff, interval = c(0,2))$root
+root2 <- uniroot(diff, interval = c(2,4))$root#Extracting actual values with $root
+df |>
+  ggplot(aes(x=x)) +
+  stat_function(fun = dnorm, args = list(mean=2, sd=1), color = 'blue') +
+  stat_function(fun=dnorm, args=list(mean=2, sd=0.5), color = 'red') +
+  geom_ribbon(
+    data = df |> filter(between(x, root1, root2)),
+    aes(ymin = 0, 
+        ymax = pmin(y1, y2)),
+    fill = 'yellow'
+  ) +
   theme_minimal()
-Pakartokite �iuos skai�iavimus imdami met� kategorijas: 
- 1995-1998 (imtinai)  ir  1998-2001 (imtinai) 
-
-Padarykite abi diagramas viename lape.
-
-par(mfrow=c(2,1))
-?%>%
-6.
-Nubr��kite dvi normali�sias kreives su vidurkiu 2  ir standartiniu nuokrypiu
-0.5 ir 1 atitinkamai. Plot� nuo vidurkio iki artimiausi� dviej�
-�i� kreivi� susikirtimo ta�k� nuspalvinkite geltonai. Susikirtimo ta�kus galite
-nustatyti empiri�kai. 
-
-
