@@ -1,5 +1,5 @@
 #Uzduotys.
-
+li
 1. 
 #Pakete lillies paimkite duomenis simu_data. Raskite:
 #a) Mirties amziaus riba, kurios nevirsija ne maziau 95 procentai visu 
@@ -76,16 +76,56 @@ print(vid_vid)
 #pazymekite juose vidurki. 
 boxplot(df_wide$`1995`,df_wide$`1996`,df_wide$`1997`,df_wide$`1998`,df_wide$`1999`,df_wide$`2000`,df_wide$`2001`)
 points(unlist(vid_s), col='red')
-3.
-Triju sigma taisykle
-Padarykite br??in?, kuris vizualizuot? 3 sigma taisykl?. 
-Prad?ioje nubr??kite standartinio normaliojo skirstinio grafik?. 
-Geltonai nuspalvinkite grafiko u?imam? plot?, kuris nutol?s nuo vidurkio per 1
-standartin? nuokryp?, ?aliai per du standartinius nuokrypius ir m?lynai
-per tris standartinius nuokrypius. U?d?kite atitinkam? legend?.
-Patikslinkite gaut? taisykl? surasdami atitinkamus normaliojo skirstinio 
-kvantilius. 
-
+#3.
+#Triju sigma taisykle
+#Padarykite brezini, kuris vizualizuotu 3 sigma taisykle. 
+#Pradzioje nubrezkite standartinio normaliojo skirstinio grafika. 
+#Geltonai nuspalvinkite grafiko uzimama plota, kuris nutoles nuo vidurkio per 1
+#standartini nuokrypi, zaliai per du standartinius nuokrypius ir melynai
+#per tris standartinius nuokrypius. Uzdekite atitinkama legenda.
+#Patikslinkite gauta taisykle surasdami atitinkamus normaliojo skirstinio 
+#kvantilius. ]
+fn <- function(x) dnorm(x,)
+library(ggplot2)
+ggplot()+
+  stat_function(fun=dnorm, args=list(mean=0,sd=1))+
+  stat_function(
+    fun = dnorm,
+    args = list(mean = 0, sd = 1),
+    geom = "area",
+    xlim = c(-1, 1),
+    fill = "yellow",
+    alpha = 0.5)+
+  stat_function(
+    fun = dnorm,
+    args = list(mean = 0, sd = 1),
+    geom = "area",
+    xlim = c(-2, -1),
+    fill = "green",
+    alpha = 0.5)+
+  stat_function(
+    fun = dnorm,
+    args = list(mean = 0, sd = 1),
+    geom = "area",
+    xlim = c(1, 2),
+    fill = "green",
+    alpha = 0.5)+
+  stat_function(
+    fun = dnorm,
+    args = list(mean = 0, sd = 1),
+    geom = "area",
+    xlim = c(-3, -2),
+    fill = "blue",
+    alpha = 0.5)+
+  stat_function(
+    fun = dnorm,
+    args = list(mean = 0, sd = 1),
+    geom = "area",
+    xlim = c(2, 3),
+    fill = "blue",
+    alpha = 0.5)+
+  xlim(-5,5)+
+  theme_minimal()
 4. Papildoma u?duotis.
 ?vykd? komandas
 par(mfrow=c(2,1))
