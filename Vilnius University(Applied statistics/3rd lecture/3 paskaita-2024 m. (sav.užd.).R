@@ -39,47 +39,67 @@ ggplot()+
   stat_function(fun = dchisq, args =list(df=90))+#df cia laisves laipsniu skc
   stat_function(fun = dnorm, args =list(mean=90, sd=13.4), col='yellow')+
   xlim(0,200)
-3.
+#3.
+#Duomenyse Animals (paketas MASS) suskirstykite gyvunus i 5 kategorijas.
+#sias kategorijas atitinka irasai:
+#primatai(10,13,14,17,24), zoledziai(2,4,8,9,12,22), plesrunai(3,11,23),
+#dinozaurai(6,16,26), grauzikai(1,5,19,20,21,25,27).
+#a) Apskaiciuokite proc.santyki, kuria dali siu gyvunu galvos smegenu mases
+#sudaro kuno mase. Isveskite kiekvienos kategorijos santykio vidurki.
+library(MASS)
+library(dplyr)
+df <- Animals
+df <- df |>
+  mutate(santykis = round(brain*0.1/body, 2))#nes body yra kilogramais, o brain gramais
+nr=1:length(df$body)
+cbind(nr, df)
+primatai = df[c(10,13,14,17,24), ]
+zole <- df[c(2,4,8,9,12,22), ]
+ples <- df[c(3,11,23),]
+dino <- df[c(6,16,26),]
+grz <- df[c(1,5,19,20,21,25,27),]
+primatai_vid <- mean(primatai$santykis)
+zole_vid <- mean(zole$santykis)
+#analogiskai kiti
+#b)Padarykite Sio santykio stulpeline kategorijU diagrama. 
+#Diagramoje uzdekite zymas kiekvienos kategorijos santyki suapvalindami iki 
+#2 skaiciu po kablelio. 
+barplot(c(primatai_vid, zole_vid), col = c('yellow', 'green'), legend.text = c('primatai', 'zole'), name = 'santykiai')
+#4.
+#Duomenyse simu_data (paketas "lillies") pasalinkite visas eilutes,
+#kuriuose mirties data didesne uz 80 metu. Nubraizykite gauta nauja 
+#duomenu tankio funkcijos grafika.
+library(lillies)
+df<-simu_data
+df<-df |>
+  filter(as.numeric(age_death) <= 80)
+plot(density(df$age_death))
+#5.
+#Duomenys VonBort paketas(vcd) yra apie kariu skaiciu
+#Prusu armijoje 1875-1894 m.zuvusiu nuo arklio spyrio i galva. 
+#zuvusiu skaicius pateiktas atskirai kiekviename armijos korpuse.
 
-Duomenyse Animals (paketas MASS) suskirstykite gyv?nus ? 5 kategorijas.
-?ias kategorijas atitinka ?ra?ai:
-primatai(10,13,14,17,24), ?ol?d?iai(2,4,8,9,12,22), pl??r?nai(3,11,23),
-dinozaurai(6,16,26), grau?ikai(1,5,19,20,21,25,27).
-a) Apskai?iuokite proc.santyk?, kuri? dal? ?i? gyv?n? galvos smegen? mas?s
-sudaro k?no mas?. I?veskite kiekvienos kategorijos santykio vidurk?. 
-b)Padarykite ?io santykio stulpelin? kategorij? diagram?. 
-Diagramoje u?d?kite ?ymas kiekvienos kategorijos santyk? suapvalindami iki 
-2 skai?i? po kablelio. 
-
-4.
-Duomenyse simu_data (paketas "lillies") pa?alinkite visas eilutes,
-kuriuose mirties data didesn? u? 80 met?. Nubrai?ykite gaut? nauj? 
-duomen? tankio funkcijos grafik?.
-
-
-5.
-Duomenys VonBort paketas(vcd) yra apie kari? skai?i?
-Pr?s? armijoje 1875-1894 m.?uvusi? nuo arklio spyrio ? galv?. 
-?uvusi? skai?ius pateiktas atskirai kiekviename armijos korpuse.
-
-a) Raskite bendr? ?uvusi?j? skai?i? visuose korpusuose kas ketverius metus:
-1875-1878 m
-1879-1882 m.
-1883-1886 m.
-1887-1890 m.
-1891-1894 m.
-Padarykite 3D skritulin? diagram? vaizduojan?i? ?uvusi?j? skai?i? nurodytais
-metais;
-
-
-b) 
-I? 4a) padarytos diagramos matyti, kad bendras ma?iausias ?uvusi?
-skai?ius-24 buvo 1875-1878 metais, o dvigubai didesnis 1879-1882 metais.
-I?siai?kinsime, kaip nurodytais laikotarpiais skyr?si ?uvusi? skai?ius
-kiekvienais metais, tai yra palyginsime bendr? ?uvusi? skai?i?:
-1875 ir 1879 m, 1876 ir 1880 m, 1877 ir 1881 m, 1878  ir 1882 metais.
-Padarykite palyginam?j? sta?iakamp? diagram?, kuri lygint? bendr? visuose
-korpusuose ?uvusi? skai?i? i?vardytais metais. 
+#a) Raskite bendra zuvusiuju skaiciu visuose korpusuose kas ketverius metus:
+#1875-1878 m
+#1879-1882 m.
+#1883-1886 m.
+#1887-1890 m.
+#1891-1894 m.
+#Padarykite 3D skrituline diagrama vaizduojancia zuvusiuju skaiciu nurodytais
+#metais;
+library(vcd)
+library(plotrix)
+df<-VonBort
+int <- cut(df$year, breaks =c(1875, 1878,1882,1886,1890,1894), right = TRUE)
+pie3D(table(int), labels = names(table(int)))
+#b) 
+#Is 4a) padarytos diagramos matyti, kad bendras maziausias zuvusiu
+#skaicius-24 buvo 1875-1878 metais, o dvigubai didesnis 1879-1882 metais.
+#Issiaiskinsime, kaip nurodytais laikotarpiais skyresi zuvusiu skaicius
+#kiekvienais metais, tai yra palyginsime bendra zuvusiu skaiciu:
+#1875 ir 1879 m, 1876 ir 1880 m, 1877 ir 1881 m, 1878  ir 1882 metais.
+#Padarykite palyginamaja staciakampe diagrama, kuri lygintu bendra visuose
+#korpusuose zuvusiu skaiciu isvardytais metais. 
 
 
 c) 
