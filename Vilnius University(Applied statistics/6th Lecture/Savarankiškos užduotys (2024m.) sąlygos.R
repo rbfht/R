@@ -119,15 +119,14 @@ for (i in seq_len(nrow(df))) {
   else if(13 <= df$exper[i] & df$exper[i] <= 18){
     kat <- 3
   }
-  #If a row isn't in any of the categories we assign 0
   else {
-    kat <- 0
+    break
   }
   df[i, "kategorija"] <- kat
 }
-#Delete rows which category is 0
+#Delete rows which category is null
 df <- df |>
-  filter(kategorija != 0)
+  filter(!(is.null(kategorija)))
 
 #The solution from the provided website
 library(Ecdat)
