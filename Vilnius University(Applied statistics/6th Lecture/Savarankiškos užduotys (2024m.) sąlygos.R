@@ -70,45 +70,103 @@ j / n
 #3. Pirmos rusies klaidos tikimybe, kad abieju imciu dispersijos lygios.
 j <- sum(p_v < 0.05)
 j/1000
+ 
+#Uzduotis 3. 
+#1000 kartu generuokite  100 standartinio normaliojo atsitiktinio
+#dydzio reiksmiu.  Keliais atvejais galima teigti, kad imtis sudaryta is 
+#standartines normaliosios populiacijos.
 
-U?duotis 3. 
+library(EnvStats)
+p_v=as.numeric(0)
+p_m=as.numeric(0)
+for (i in 1:1000){
+  X <- rnorm(100)
+  p_m[i]=t.test(X, mu = 0)$p.value
+  p_v[i]=varTest(X,sigma.squared =1)$p.value
+}
+sum(p_v>=0.05 & p_m>=0.05)
 
-1000 kart? generuokite  100 standartinio normaliojo atsitiktinio
-dyd?io reik?mi?.  Keliais atvejais galima teigti, kad imtis sudaryta i? 
-standartin?s normaliosios populiacijos. 
+#Uzduotis 4. 
 
+#Suraskite duomenis Wages1 (biblioteka Ecdat). Nagrinekite valandini atlyginima
+#(stulpelis wage), pagal 3 darbo patirties kategorijas (stulpelis exper).
+#Tuo tikslu padalykite valandini atlyginima i 3 kategorijas:
 
-U?duotis 4. 
+#I kategorija Valandinis atlyginimas iki 6 metu imtinai;
+#II kategorija Valandinis atlyginimas nuo 7 iki 12 m. imtinai;
+#III katrgorija Valandinis atlyginimas nuo 13 metu imtinai iki 18 metu. 
 
-Suraskite duomenis Wages1 (biblioteka Ecdat). Nagrin?kite valandin? atlyginim?
-(stulpelis wage), pagal 3 darbo patirties kategorijas (stulpelis exper).
-Tuo tikslu padalykite valandin? atlyginim? ? 3 kategorijas:
+#Kaip suskirstyti atlyginimus i sias 3 kategorijas informacija
+#suraskite internete. Galite pasinaudoti nuoroda:
+#https://www.geeksforgeeks.org/how-to-create-categorical-variables-in-r/
 
-I kategorija Valandinis atlyginimas iki 6 met? imtinai;
-II kategorija Valandinis atlyginimas nuo 7 iki 12 m. imtinai;
-III katrgorija Valandinis atlyginimas nuo 13 met? imtinai iki 18 met?. 
+#My personal attempt to make the 3 categories
 
-Kaip suskirstyti atlyginimus ? ?ias 3 kategorijas informacij?
-suraskite internete. Galite pasinaudoti nuoroda:
-https://www.geeksforgeeks.org/how-to-create-categorical-variables-in-r/
+library(Ecdat)
+library(dplyr)
+df <- Wages1
+#Creating new column for categories
+df |>
+  mutate(kategorija = NULL)
+#Loop which assigns the categories
+for (i in seq_len(nrow(df))) {
+  if(df$exper[i] <= 6){
+    kat <- 1
+  }
+  else if(7 <= df$exper[i] & df$exper[i] <= 12){
+    kat <- 2
+  }
+  else if(13 <= df$exper[i] & df$exper[i] <= 18){
+    kat <- 3
+  }
+  #If a row isn't in any of the categories we assign 0
+  else {
+    kat <- 0
+  }
+  df[i, "kategorija"] <- kat
+}
+#Delete rows which category is 0
+df <- df |>
+  filter(kategorija != 0)
 
-1. 
-Paskai?iuokite kiekvienos kategorijos valandinio atlyginimo median? ir
-padarykite vis? trij? kategorij? atlyginim? d??inius grafikus, taip 
-grafi?kai palygindami visas 3 medianas.
-Patikrinkite hipotez?, kad valandinio atlyginimo medianos vosose 3 
-kategorijose yra lygios. 
+#The solution from the provided website
+library(Ecdat)
+df <- Wages1
+df$kategorija <- as.factor(ifelse(df$exper<=6, 'I',
+                          ifelse(7 <= df$exper & df$exper <= 12, "II",
+                          ifelse(13 <= df$exper & df$exper <= 18, "III", "-"       
+                                  ))))
 
-2. 
-Padarykite I-os ir III-ios kategorij? valandinio atlyginimo d??inius grafikus,
-lygindami I-os ir III-ios kategorij? medianas.
-Patikrinkite hipotez?, kad valandinio atlyginimo medianos vosose I-oje ir 
-III-ioje   kategorijose yra lygios. 
+#1. 
+#Paskaiciuokite kiekvienos kategorijos valandinio atlyginimo mediana ir
+#padarykite visu triju kategoriju atlyginimu dezinius grafikus, taip 
+#grafiskai palygindami visas 3 medianas.
+#Patikrinkite hipoteze, kad valandinio atlyginimo medianos visose 3 
+#kategorijose yra lygios. 
 
+median(df$wage[df$kategorija == "I"])
+median(df$wage[df$kategorija == "II"])
+median(df$wage[df$kategorija == "III"])
+boxplot(df$wage[df$kategorija == "I"], df$wage[df$kategorija == "II"], df$wage[df$kategorija == "III"])
+kruskal.test(wage ~ kategorija, df)
+#Maza p reiksme, tai turime pagrindo atmesti nuline hipoteze, kad visu kategoriju medianos yra lygios
 
-3.
-Patikrinkite hipotez? apie  trij? sudaryt? kategorij? vidurki? lygyb?. 
+#2. 
+#Padarykite I-os ir III-ios kategoriju valandinio atlyginimo dezinius grafikus,
+#lygindami I-os ir III-ios kategoriju medianas.
+#Patikrinkite hipoteze, kad valandinio atlyginimo medianos vosose I-oje ir 
+#III-ioje   kategorijose yra lygios. 
 
+boxplot(df$wage[df$kategorija == "I"], df$wage[df$kategorija == "III"])
+wilcox.test(df$wage[df$kategorija == "I"], df$wage[df$kategorija == "III"])
+#Nera pagrindo atmesti nulines hipotezes
+
+#3.
+#Patikrinkite hipoteze apie  triju sudarytu kategoriju vidurkiu lygybe. 
+
+aov(wage ~ kategorija, data = df) |>
+  summary()
+#Turime pagrindo atmesti nuline hipoteze
 
 
 U?duotis 5. 
