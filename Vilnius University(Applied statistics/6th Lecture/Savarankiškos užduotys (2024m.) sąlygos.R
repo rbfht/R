@@ -124,7 +124,7 @@ for (i in seq_len(nrow(df))) {
   }
   df[i, "kategorija"] <- kat
 }
-#Delete rows which category is null
+#Delete rows whose category is null
 df <- df |>
   filter(!(is.null(kategorija)))
 
