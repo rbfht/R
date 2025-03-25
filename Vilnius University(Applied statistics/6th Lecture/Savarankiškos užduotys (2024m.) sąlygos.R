@@ -168,12 +168,19 @@ aov(wage ~ kategorija, data = df) |>
 #Turime pagrindo atmesti nuline hipoteze
 
 
-U?duotis 5. 
+#Uzduotis 5. 
 
-Duomenys HairEyeColor (biblioteka UsingR) yra apie vyr? ir moter? aki? ir 
-plauk? spalv?. Suraskite vyr? ir moter? juod? plauk? imties proporcijas, bei 
-patikrinkite  hipotez?, kad vyr?  populiacijos juod? plauk? proporcija
-yra didesn? u? moter? juod? plauk? proporcij?. 
+#Duomenys HairEyeColor (biblioteka UsingR) yra apie vyru ir moteru akiu ir 
+#plauku spalva. Suraskite vyru ir moteru juodu plauku imties proporcijas, bei 
+#patikrinkite  hipoteze, kad vyru  populiacijos juodu plauku proporcija
+#yra didesne uz moteru juodu plauku proporcija.
 
-
+library(UsingR)
+df <- as.data.frame(HairEyeColor)
+vyr_m <- sum(df[df$Hair == "Black" & df$Sex == "Male", "Freq"])
+vyr_n <- sum(df[df$Sex == "Male", "Freq"])
+mot_m <- sum(df[df$Hair == "Black" & df$Sex == "Female", "Freq"])
+mot_n <- sum(df[df$Sex == "Female", "Freq"])
+binom.test(vyr_m, vyr_n, p = mot_m/mot_n, alternative = "greater")
+#Nuline hipoteze, kad vyru ir moteru juodu plauku proporcijos yra lygios nera pagrindo atemsti.
 
