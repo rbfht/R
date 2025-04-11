@@ -29,7 +29,6 @@ ggplot_na_imputations(df[1:90],y,tsNH4Complete[1:90])
 #sausio menesio iki 1960 metu gruodzio menesio. Naudodami siuos duomenis:
 view(AirPassengers)
 df <- AirPassengers
-
 #1. Padarykite tiesines regresijos modeli priklausanti nuo dvieju regresoriu:
 #metu ir menesiu. Koks modelio determinacijos koeficientas;
 sum(is.na(df))
@@ -39,7 +38,9 @@ men = factor(cycle(df))
 z = lm(df ~ men + metai)
 summary(z)
 #0.95
-
+layout(matrix(1:4, nrow = 2))
+plot(z)
+confint(z)
 #2. Nubrezkite AirPassengers ir jo modelio grafikus viename paveiksle.
 plot(AirPassengers, type="l")
 plot(predict(z),col="2",type="l")
@@ -99,12 +100,21 @@ ggplot(df_data, aes(x=time))+
   geom_line(aes(y=original), color = 'black')+
   geom_line(aes(y=splain$fitted.values), color='green' )
 #Naudojome vienpusi glodinima t.y. kiekvienas x_j pakeiciamas mean(x_j,x_j-1,...,x_j-99), todel pirmos 99 reiksmiu yra NA, nes nera pakankamai duomeny, tai galime matyti raudonoje kreiveje
-
 #4 uzduotis
- 
 #Is duomenu AirPassengers pasalinkite metini trenda, o po to sezoniskuma. Padarykite 
 #laiko eilutes dalies pasalinus sezoniskuma ir sezonines dalies grafikus. 
 
+#Faster approach:
+df <- as_tsibble(AirPassengers)
+df <- df |> 
+  mutate(value = log(value))
+dcmp <- df |> model(stl = STL(value))
+components(dcmp) |>
+  autoplot()
+
+
+#
+?AirPassengers
 df <- AirPassengers
 head(df)
 sum(is.na(df))
